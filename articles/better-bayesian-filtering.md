@@ -10,9 +10,33 @@
 
 Ocak 2003
 
-(Bu makale 2003 Spam Konferansı'nda bir konuşma olarak verilmiştir. A Plan for Spam'de açıklanan algoritmanın performansını iyileştirmek için yaptığım çalışmaları ve gelecekte yapmayı planladıklarımı anlatmaktadır.)
+(Bu makale 2003 Spam Konferansı'nda bir konuşma olarak verilmiştir. "Spam için bir plan"da açıklanan algoritmanın performansını iyileştirmek için yaptığım çalışmaları ve gelecekte yapmayı planladıklarımı anlatmaktadır.)
 
-**Jetonlar**
+Burada sunmak istediğim ilk keşif, araştırma makalelerinin tembel değerlendirmesi için bir algoritmadır. Sadece istediğinizi yazın ve önceki çalışmalardan alıntı yapmayın, bundan dolay kızgın okuyucular alıntı yapmanız gereken tüm makalelere referanslar gönderecektir. Bu algoritmayı ``Spam için bir Plan''[1] Slashdot'tayken keşfettim.
+
+Spam filtreleme, köklü bir alan olan metin sınıflandırmasının bir alt kümesidir ancak ancak Bayesian istenmeyen e-posta filtreleme hakkındaki ilk makaleler, 1998'de aynı konferansta, biri Pantel ve Lin [2], diğeri ise Microsoft araştırma ekibi içerisindeki bir grup [3] tarafından verilmiş gibi görünüyor.
+
+Bu çalışmayı duyduğumda biraz şaşırdım. İnsanlar dört yıl önce Bayes filtrelemesine girmişse, neden herkes onu kullanmıyordu? Gazeteleri okuyunca nedenini anladım. Pantel ve Lin'in filtresi, ikisi arasında daha etkiliydi, ancak %1,16 yanlış pozitif ile istenmeyen postaların yalnızca %92'sini yakaladı. 
+
+Bir Bayes spam filtresi yazmayı denediğimde, spam maillerin %99.5'ini %0.03'ten daha az yanlış pozitifle yakaladı [4]. Aynı deneyi yapan iki kişinin birbirinden çok farklı sonuçlar elde etmesi her zaman endişe vericidir. Burada özellikle endişe verici çünkü bu iki sayı grubu zıt sonuçlar ortaya çıkarabilir. Farklı kullanıcıların farklı gereksinimleri vardır, ancak bence çoğu insan için %1.16 hatalı pozitif ile %92 filtreleme oranı, filtrelemenin kabul edilebilir bir çözüm olmadığı anlamına gelirken, %0.03'ten daha az hatalı pozitif ile %99.5 filtreleme kabul edilebilir olduğu anlamına gelir.
+
+Peki neden bu kadar farklı değerler aldık? Pantel ve Lin'in sonuçlarını yeniden üretmeye çalışmadım, ancak makaleyi okuduğumda muhtemelen farkı açıklayan beş şey görüyorum.
+
+Farklardan biri basitçe onların filtrelerini çok az veri üzerinde eğitmelerinden kaynaklanmaktadır: 160 spam mail ve 466 spam olmayan mail. Filtre performansı, bu kadar küçük veri kümeleriyle hala tırmanıyor olmalı. Bu nedenle veri seti sayıları, genel olarak Bayes spam filtrelemesini bırakın, algoritmalarının performansının doğru bir ölçüsü bile olmayabilir. 
+
+Ancak bence en önemli fark, muhtemelen mesaj başlıklarını görmezden gelmeleridir. İstenmeyen e-posta filtreleri üzerinde çalışmış olan herkes için bu yanlış bir karar gibi görünecektir. Ve yine de ilk filtrelerde yazmayı denedim, başlıkları da görmezden geldim. Neden? Çünkü sorunu temiz tutmak istedim. O zamanlar posta başlıkları hakkında pek bir şey bilmiyordum ve bana rastgele şeylerle doluymuş gibi geldiler. Burada filtre yazarları için çıkarılabilecek bir ders var: verileri göz ardı etmeyin. Bu dersin bahsetmek için çok açık olacağını düşünebilirsiniz  ama ben birkaç kez öğrenmek zorunda kaldım.
+
+Kümelerinin küçük olması nedeniyle bunu yapmaya zorlandıklarını hissetmiş olabilirler, ancak eğer öyleyse bu bir tür erken optimizasyondur.
+
+Dördüncüsü, olasılıkları farklı şekilde hesapladılar. Tüm belirteçleri kullandılar, oysa ben yalnızca en önemli 15 tanesini kullanıyorum. Eğer tüm belirteçleri kullanırsanız, daha uzun spam maillerini kaçırma eğiliminde olursunuz. Ve böyle bir algoritma, spam gönderenlerin yanıltması için kolay olacaktır: spam terimlerini dengelemek için büyük bir rastgele metin yığını eklemeniz yeterlidir.
+
+Son olarak, yanlış pozitiflere karşı önyargılı olmadılar. Herhangi bir spam filtreleme algoritmasının, filtreleme oranı pahasına yanlış pozitif oranı azaltmak için çevirebileceğiniz uygun bir düğüme sahip olması gerektiğini düşünüyorum. Bunu spam olmayan metin çiftlerindeki belirteçlerin oluşumlarını sayarak yapıyorum.
+
+Spam filtrelemeyi düz metin sınıflandırma sorunu olarak ele almanın iyi bir fikir olduğunu düşünmüyorum. Metin sınıflandırma tekniklerini kullanabilirsiniz, ancak çözümler metnin e-posta ve özellikle spam olduğu gerçeğini yansıtabilir ve yansıtmalıdır. E-posta sadece metin değildir; yapıya da sahiptir. İstenmeyen posta filtreleme sadece sınıflandırma değildir, çünkü yanlış pozitifler yanlış negatiflerden çok daha kötüdür ve onları farklı türde bir hata olarak ele almalısınız. Ve hatanın kaynağı sadece rastgele varyasyon değil, aynı zamanda filtrenizi yenmek için aktif olarak çalışan canlı bir insan spam göndericisi olabilir.
+
+
+**Belirteçler**
+
 
 **Performans**
 
@@ -39,6 +63,9 @@ Ağ düzeyinde filtreler tamamen işe yaramaz olmayacak. Virtumundo ve Equalamai
 İyimser olduğum filtre türleri, her bir kullanıcının postasına göre olasılıkları hesaplayan filtrelerdir. Bunlar, yalnızca yanlış pozitifleri önlemede değil, aynı zamanda filtrelemede de çok daha etkili olabilir: örneğin, bir iletinin herhangi bir yerinde alıcının e-posta adresinin base-64 olarak kodlanmış olduğunu bulmak, çok iyi bir spam göstergesidir.
 
 Ancak bireysel filtrelerin gerçek avantajı, hepsinin farklı olmasıdır. Herkesin filtrelerinin farklı olasılıkları varsa, spam gönderenlerin optimizasyon döngüsünü, programcıların düzenleme-derleme-test döngüsü olarak adlandırdığı şeyi korkunç derecede yavaşlatır. Bir istenmeyen postayı, masaüstündeki bazı filtrelerin bir kopyasından geçene kadar ayarlamak yerine, her ince ayar için bir test postası göndermeleri gerekecek. Etkileşimli bir üst düzeyi olmayan bir dilde programlama gibi olurdu ve bunu hiç kimse için istemezdim.
+
+
+**Notlar**
 
 
 
